@@ -51,19 +51,76 @@ await connect();
 
 if(!userId || !newUsername){
 
-   return new NextResponse ("User id or new user name not found" ,{status:400})
+   return new NextResponse(JSON.stringify({message : 'User id or user name not found' } ) ,{status : 400})
 }
 
-if(!userId || !newUsername){
+if(!Types.ObjectId.isValid(userId)){
 
-   return new NextResponse ("User id or new user name not found" ,{status:400})
+    return new NextResponse(JSON.stringify({message : 'Invalide user id' } ) ,{status : 400})
 }
 
+
+const updatedUser = await User.findOneAndUpdate(
+  { _id: userId },      
+{username : newUsername},
+{new : true}
+
+)
+
+if(!updatedUser){
+
+    return new NextResponse(JSON.stringify({message : 'User not found' } ) ,{status : 400})
+}
+
+ return new NextResponse(JSON.stringify({message : 'User Updated succesfully !' } ) ,{status : 200})
 
 
 }catch(e : any){
  return new NextResponse ("Error deleting user" + e.message ,{status:500})
 }
+
+
+
+}
+
+export const DELETE = async ( request : Request) => {
+
+
+try{
+
+const {searchParams} = new URL(request.url);
+const userId = searchParams.get("userId"); 
+
+
+if(!userId ){
+
+   return new NextResponse(JSON.stringify({message : 'User id or user name not found' } ) ,{status : 400})
+}
+
+if(!Types.ObjectId.isValid(userId)){
+
+    return new NextResponse(JSON.stringify({message : 'Invalide user id' } ) ,{status : 400})
+}
+
+await connect();
+
+
+const deletedUser = await User.findByIdAndDelete(
+   new Types.ObjectId(userId)
+)
+
+if(!deletedUser){
+
+    return new NextResponse(JSON.stringify({message : 'User not found' } ) ,{status : 400})
+}
+
+ return new NextResponse(JSON.stringify({message : 'User Deleted succesfully !' } ) ,{status : 200})
+
+}catch(e : any){
+ return new NextResponse ("Error deleting user" + e.message ,{status:500})
+}
+
+
 
 
 
